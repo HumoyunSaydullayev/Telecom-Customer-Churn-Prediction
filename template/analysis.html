@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% block title %}Klassifikatsiya — Churn Bashorat Tahlili{% endblock %}
+
+{% block carousel %}{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<!-- Page Header -->
+<div class="page-header mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border-radius:20px;padding:4px 14px;font-size:0.75rem;font-weight:600;letter-spacing:1px;margin-bottom:10px;color:rgba(255,255,255,0.8);">
+                <i class="fas fa-robot"></i> KLASSIFIKATSIYA · ML
+            </div>
+            <h2 style="margin-bottom:6px;">Churn Klassifikatsiya Tahlili</h2>
+            <p>CSV yuklang, model tanlang va mijoz churn ehtimolini hisoblang</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end flex-wrap">
+            <a href="{% url 'database' %}" style="background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 16px;font-size:0.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                <i class="fas fa-database"></i> Dataset
+            </a>
+            <a href="{% url 'algorithm' %}" style="background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 16px;font-size:0.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                <i class="fas fa-code-branch"></i> Algoritmlar
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if error %}
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;">
+    <i class="fas fa-exclamation-triangle" style="color:#ef4444;margin-top:2px;"></i>
+    <div><strong style="color:#dc2626;">Xatolik!</strong> <span style="color:#b91c1c;font-size:0.9rem;">{{ error }}</span></div>
+</div>
+{% endif %}
+
+<!-- Upload Form -->
+<form id="analysisForm" method="post" enctype="multipart/form-data" action="{% url 'analysis' %}">
+    {% csrf_token %}
+    <div class="row g-4 mb-4">
+        <!-- Upload Zone -->
+        <div class="col-lg-7">
+            <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;">
+                <div style="padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-upload" style="color:#0f4c75;"></i>
+                    <span style="font-weight:700;font-size:0.95rem;">CSV Fayl Yuklash</span>
+                </div>
+                <div style="padding:20px;">
+                    <div class="upload-zone" id="dropZone" onclick="document.getElementById('csvFile').click()">
+                        <i class="fas fa-file-csv" id="uploadIcon"></i>
+                        <h6 style="font-weight:700;margin-bottom:6px;color:#374151;">CSV faylni bu yerga tashlang yoki bosing</h6>
+                        <p style="font-size:0.82rem;color:#94a3b8;margin-bottom:12px;">IBM Telco yoki shunga o'xshash format</p>
+                        <div id="fileLabel">
+                            <span style="background:#f1f5f9;color:#64748b;padding:4px 14px;border-radius:20px;font-size:0.78rem;font-weight:600;">Fayl tanlanmagan</span>
+                        </div>
+                    </div>
+                    <input type="file" id="csvFile" name="csv_file" accept=".csv" class="d-none" onchange="handleFile(this)">
+                    <div style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:10px;font-size:0.8rem;color:#64748b;display:flex;gap:8px;align-items:flex-start;">
+                        <i class="fas fa-info-circle" style="color:#0f4c75;margin-top:1px;"></i>
+                        <span><strong>Saqlangan model</strong> yangi CSV ga bashorat qiladi. Agar CSV da \"Churn\" ustuni bo'lsa — aniqlik metrikalarini ham ko'rsatadi.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Selection -->
+        <div class="col-lg-5">
+            <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;">
+                <div style="padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-brain" style="color:#0f4c75;"></i>
+                    <span style="font-weight:700;font-size:0.95rem;">Model Tanlash</span>
+                </div>
+                <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
+                    <!-- RF -->
+                    <label style="cursor:pointer;" onclick="selectModel('rf')">
+                        <div id="rf-card" style="border:2px solid #0f4c75;background:#eff6ff;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;transition:all 0.2s;">
+                            <input type="radio" name="model_choice" value="rf" checked style="display:none;">
+                            <div style="width:40px;height:40px;border-radius:10px;background:#0f4c75;display:flex;align-items:center;justify-content:center;color:white;font-size:1rem;flex-shrink:0;"><i class="fas fa-tree"></i></div>
+                            <div style="flex:1;">
+                                <div style="font-weight:700;font-size:0.9rem;color:#1e3a8a;">Random Forest</div>
+                                <div style="font-size:0.76rem;color:#64748b;">Feature importance, overfitting'ga chidamli</div>
+                            </div>
+                            <span style="background:#0f4c75;color:white;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:10px;">TOP</span>
+                        </div>
+                    </label>
+                    <!-- GBM -->
+                    <label style="cursor:pointer;" onclick="selectModel('gbm')">
+                        <div id="gbm-card" style="border:2px solid #e2e8f0;background:white;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;transition:all 0.2s;">
+                            <input type="radio" name="model_choice" value="gbm" style="display:none;">
+                            <div style="width:40px;height:40px;border-radius:10px;background:#f97316;display:flex;align-items:center;justify-content:center;color:white;font-size:1rem;flex-shrink:0;"><i class="fas fa-fire"></i></div>
+                            <div style="flex:1;">
+                                <div style="font-weight:700;font-size:0.9rem;">Gradient Boosting</div>
+                                <div style="font-size:0.76rem;color:#64748b;">Eng yuqori aniqlik, biroz sekinroq</div>
+                            </div>
+                        </div>
+                    </label>
+                    <!-- LR -->
+                    <label style="cursor:pointer;" onclick="selectModel('lr')">
+                        <div id="lr-card" style="border:2px solid #e2e8f0;background:white;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;transition:all 0.2s;">
+                            <input type="radio" name="model_choice" value="lr" style="display:none;">
+                            <div style="width:40px;height:40px;border-radius:10px;background:#06b6d4;display:flex;align-items:center;justify-content:center;color:white;font-size:1rem;flex-shrink:0;"><i class="fas fa-wave-square"></i></div>
+                            <div style="flex:1;">
+                                <div style="font-weight:700;font-size:0.9rem;">Logistik Regressiya</div>
+                                <div style="font-size:0.76rem;color:#64748b;">Tez va oson izohlanadi, baseline</div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <button type="submit" id="submitBtn" disabled
+                        style="background:linear-gradient(135deg,#0f4c75,#06b6d4);color:white;border:none;border-radius:10px;padding:13px;font-weight:700;font-size:0.92rem;cursor:not-allowed;opacity:0.5;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.25s;margin-top:4px;">
+                        <i class="fas fa-play"></i> Tahlilni Boshlash
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Loading -->
+<div id="loadingDiv" style="display:none;text-align:center;padding:60px 24px;background:white;border-radius:14px;border:1px solid #e2e8f0;margin-bottom:24px;">
+    <div style="width:60px;height:60px;border:4px solid #e2e8f0;border-top-color:#0f4c75;border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 20px;"></div>
+    <h5 style="font-weight:700;margin-bottom:8px;">Bashorat qilinmoqda...</h5>
+    <p style="color:#64748b;font-size:0.88rem;margin-bottom:16px;">Saqlangan model CSV ma'lumotlarini tahlil qilmoqda</p>
+    <div style="max-width:400px;margin:auto;height:6px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+        <div style="height:100%;background:linear-gradient(90deg,#0f4c75,#06b6d4);border-radius:4px;animation:progress 2s ease-in-out infinite;"></div>
+    </div>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
+{% if results %}
+<div id="results">
+
+    {% if warning %}
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 18px;margin-bottom:16px;display:flex;gap:8px;align-items:flex-start;">
+        <i class="fas fa-exclamation-triangle" style="color:#d97706;margin-top:2px;"></i>
+        <span style="color:#92400e;font-size:0.88rem;">{{ warning }}</span>
+    </div>
+    {% endif %}
+
+    {% if info %}
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 18px;margin-bottom:16px;display:flex;gap:8px;align-items:flex-start;">
+        <i class="fas fa-info-circle" style="color:#3b82f6;margin-top:2px;"></i>
+        <span style="color:#1e40af;font-size:0.88rem;">{{ info }}</span>
+    </div>
+    {% endif %}
+
+    <!-- Result Header -->
+    <div style="background:linear-gradient(135deg,#0a1628,#0f4c75);border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="color:white;">
+            <h4 style="margin:0;font-weight:800;">{{ model_name }} — Bashorat Natijalari</h4>
+            <p style="opacity:0.6;margin:4px 0 0;font-size:0.85rem;">{{ total_records }} ta yozuv · {{ n_features }} ta xususiyat · {% if has_churn_col %}Solishtirish rejimi{% else %}Faqat bashorat{% endif %}</p>
+        </div>
+        <a href="{% url 'analysis' %}" style="background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 18px;font-size:0.85rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px;">
+            <i class="fas fa-redo"></i> Yangi tahlil
+        </a>
+    </div>
+
+    <!-- Metric Cards — doim ko'rsatiladi -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-2">
+            <div style="background:white;border-radius:12px;border:1px solid #e2e8f0;padding:18px;text-align:center;border-top:3px solid #10b981;">
+                <div style="font-size:1.5rem;font-weight:800;color:#10b981;">{{ total_records }}</div>
+                <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">Jami yozuv</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div style="background:white;border-radius:12px;border:1px solid #e2e8f0;padding:18px;text-align:center;border-top:3px solid #ef4444;">
+                <div style="font-size:1.5rem;font-weight:800;color:#ef4444;">{{ churn_predicted }}</div>
+                <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">Churn bashorat</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div style="background:white;border-radius:12px;border:1px solid #e2e8f0;padding:18px;text-align:center;border-top:3px solid #2a9d8f;">
+                <div style="font-size:1.5rem;font-weight:800;color:#2a9d8f;">{{ no_churn_predicted }}</div>
+                <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">Qoladigan</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div style="background:white;border-radius:12px;border:1px solid #e2e8f0;padding:18px;text-align:center;border-top:3px solid #8b5cf6;">
+                <div style="font-size:1.5rem;font-weight:800;color:#8b5cf6;">{{ n_features }}</div>
+                <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">Xususiyatlar</div>
+            </div>
+        </div>
+        {% if has_churn_col %}
+        <div class="col-6 col-md-2">
+            <div style="background:white;border-radius:12px;border:1px solid #e2e8f0;padding:18px;text-align:center;border-top:3px solid #0f4c75;">
+                <div style="font-size:1.5rem;font-weight:800;color:#0f4c75;">{{ accuracy }}%</div>
+                <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">Accuracy</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div style="background:white;border-radius:12px;border:1px solid #e2e8f0;padding:18px;text-align:center;border-top:3px solid #dc2626;">
+                <div style="font-size:1.5rem;font-weight:800;color:#dc2626;">{{ roc_auc }}</div>
+                <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">ROC-AUC</div>
+            </div>
+        </div>
+        {% elif train_accuracy %}
+        <div class="col-6 col-md-4">
+            <div style="background:white;border-radius:12px;border:1px solid #e2e8f0;padding:18px;text-align:center;border-top:3px solid #0f4c75;">
+                <div style="font-size:1.5rem;font-weight:800;color:#0f4c75;">{{ train_accuracy }}%</div>
+                <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">Model aniqligi (training)</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ═══ BASHORAT GRAFIKLARI (doim ko'rsatiladi) ═══ -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="result-chart-card">
+                <div class="chart-header"><i class="fas fa-sort-amount-down"></i> Feature Importance (Xususiyatlar Muhimligi)</div>
+                <div class="chart-body"><img src="data:image/png;base64,{{ fi_img }}" class="img-fluid" alt="Feature Importance"></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="result-chart-card" style="height:100%;">
+                <div class="chart-header"><i class="fas fa-chart-pie"></i> Bashorat Taqsimoti</div>
+                <div class="chart-body d-flex align-items-center justify-content-center" style="min-height:200px;">
+                    <img src="data:image/png;base64,{{ pred_dist_img }}" class="img-fluid" alt="Prediction Distribution">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if prob_hist_img %}
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="result-chart-card">
+                <div class="chart-header"><i class="fas fa-chart-area"></i> Churn Ehtimollik Taqsimoti</div>
+                <div class="chart-body"><img src="data:image/png;base64,{{ prob_hist_img }}" class="img-fluid" style="max-height:280px;" alt="Probability Histogram"></div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ═══ SOLISHTIRISH (faqat Churn ustuni bor bo'lganda) ═══ -->
+    {% if has_churn_col %}
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;">
+        <i class="fas fa-check-circle" style="color:#10b981;margin-top:2px;"></i>
+        <div>
+            <strong style="color:#065f46;">CSV da Churn ustuni topildi!</strong>
+            <span style="color:#064e3b;font-size:0.88rem;"> — Haqiqiy natijalar bilan solishtirish amalga oshirildi. Haqiqiy churn: {{ churn_count }} ta mijoz.</span>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="result-chart-card">
+                <div class="chart-header"><i class="fas fa-th"></i> Chalkashlik Matritsasi</div>
+                <div class="chart-body"><img src="data:image/png;base64,{{ cm_img }}" class="img-fluid" style="max-height:300px;" alt="Confusion Matrix"></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="result-chart-card">
+                <div class="chart-header"><i class="fas fa-chart-line"></i> ROC Egri Chizig'i</div>
+                <div class="chart-body"><img src="data:image/png;base64,{{ roc_img }}" class="img-fluid" style="max-height:300px;" alt="ROC Curve"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="result-chart-card" style="height:100%;">
+                <div class="chart-header"><i class="fas fa-chart-pie"></i> Haqiqiy Churn Taqsimoti</div>
+                <div class="chart-body d-flex align-items-center justify-content-center" style="min-height:200px;">
+                    <img src="data:image/png;base64,{{ dist_img }}" class="img-fluid" alt="Churn Distribution">
+                </div>
+            </div>
+        </div>
+        {% if tenure_img %}
+        <div class="col-md-8">
+            <div class="result-chart-card" style="height:100%;">
+                <div class="chart-header"><i class="fas fa-calendar-alt"></i> Abonentlik Muddati va Churn</div>
+                <div class="chart-body"><img src="data:image/png;base64,{{ tenure_img }}" class="img-fluid" style="max-height:280px;" alt="Tenure vs Churn"></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Classification Report Table -->
+    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:24px;">
+        <div style="background:#0a1628;color:white;padding:14px 20px;display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-table"></i>
+            <span style="font-weight:600;font-size:0.9rem;">Klassifikatsiya Hisoboti (Haqiqiy vs Bashorat)</span>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="custom-table" style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th>Sinf</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Support</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in report_rows %}
+                    <tr>
+                        <td><strong>{{ row.label }}</strong></td>
+                        <td>{{ row.precision }}</td>
+                        <td>{{ row.recall }}</td>
+                        <td>{{ row.f1_score }}</td>
+                        <td>{{ row.support }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Churn ustuni yo'q bo'lganda ko'rsatiladigan xabar -->
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;">
+        <i class="fas fa-info-circle" style="color:#d97706;margin-top:2px;"></i>
+        <div>
+            <strong style="color:#92400e;">CSV da Churn ustuni topilmadi</strong>
+            <span style="color:#78350f;font-size:0.88rem;"> — faqat bashorat natijalari ko'rsatilmoqda. Aniqlik metrikalarini ko'rish uchun Churn ustunli CSV yuklang.</span>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes progress {
+    0%   { width: 0%; margin-left: 0; }
+    50%  { width: 60%; margin-left: 20%; }
+    100% { width: 0%; margin-left: 100%; }
+}
+</style>
+<script>
+const models = ['rf','gbm','lr'];
+function selectModel(id) {
+    models.forEach(m => {
+        const card = document.getElementById(m+'-card');
+        if (m === id) {
+            card.style.borderColor = '#0f4c75';
+            card.style.background = '#eff6ff';
+        } else {
+            card.style.borderColor = '#e2e8f0';
+            card.style.background = 'white';
+        }
+        document.querySelector(`input[value="${m}"]`).checked = (m === id);
+    });
+}
+
+function handleFile(input) {
+    const btn = document.getElementById('submitBtn');
+    const zone = document.getElementById('dropZone');
+    const icon = document.getElementById('uploadIcon');
+    const label = document.getElementById('fileLabel');
+    if (input.files.length > 0) {
+        const name = input.files[0].name;
+        zone.classList.add('has-file');
+        icon.style.color = '#10b981';
+        label.innerHTML = `<span style="background:#f0fdf4;color:#059669;padding:4px 14px;border-radius:20px;font-size:0.78rem;font-weight:700;border:1px solid #bbf7d0;"><i class="fas fa-check me-1"></i>${name}</span>`;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+    }
+}
+
+document.getElementById('analysisForm').addEventListener('submit', function() {
+    document.getElementById('loadingDiv').style.display = 'block';
+    document.getElementById('submitBtn').disabled = true;
+});
+
+// Drag & drop
+const zone = document.getElementById('dropZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const input = document.getElementById('csvFile');
+    if (e.dataTransfer.files.length) {
+        const dt = new DataTransfer();
+        dt.items.add(e.dataTransfer.files[0]);
+        input.files = dt.files;
+        handleFile(input);
+    }
+});
+</script>
+{% endblock %}

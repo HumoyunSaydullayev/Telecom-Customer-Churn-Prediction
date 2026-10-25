@@ -1,0 +1,11 @@
+*.pkl
+*.sqlite3
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+media/
+.idea/
+.vscode/
+.DS_Store

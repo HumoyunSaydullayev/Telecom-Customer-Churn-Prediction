@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+
+
+.card-header h1 {
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+td.text-start {
+    font-weight: 600; /* Slightly bold for left column */
+}
+
+td.text-center {
+    font-weight: 400; /* Normal weight for right column */
+}
+
+

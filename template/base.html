@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="uz">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TeleChurn AI — Mijoz Tahlili{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <style>
+        :root {
+            --primary:   #0f4c75;
+            --primary-light: #1b6ca8;
+            --accent:    #f97316;
+            --accent2:   #06b6d4;
+            --success:   #10b981;
+            --danger:    #ef4444;
+            --warning:   #f59e0b;
+            --dark:      #0a1628;
+            --surface:   #f1f5f9;
+            --card-bg:   #ffffff;
+            --text:      #1e293b;
+            --text-muted:#64748b;
+            --border:    #e2e8f0;
+            --gradient:  linear-gradient(135deg, #0f4c75 0%, #1b6ca8 50%, #06b6d4 100%);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: var(--dark);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border-bottom: 2px solid var(--primary-light);
+        }
+        .navbar-inner {
+            display: flex;
+            align-items: stretch;
+            min-height: 64px;
+        }
+        .navbar-brand-wrap {
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            background: var(--primary);
+            clip-path: polygon(0 0, 90% 0, 100% 100%, 0 100%);
+            padding-right: 48px;
+            text-decoration: none;
+        }
+        .navbar-brand-wrap .brand-icon {
+            width: 38px; height: 38px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 12px;
+            font-size: 18px; color: white;
+        }
+        .navbar-brand-wrap .brand-text {
+            color: white;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+            line-height: 1.1;
+        }
+        .navbar-brand-wrap .brand-sub {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.68rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            list-style: none;
+            margin: 0;
+            padding: 0 12px;
+            flex: 1;
+        }
+        .nav-links .nav-item { height: 100%; display: flex; align-items: center; }
+        .nav-links .nav-link {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 0 16px !important;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.25s;
+            position: relative;
+            text-decoration: none;
+        }
+        .nav-links .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 16px; right: 16px;
+            height: 2px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.25s;
+        }
+        .nav-links .nav-link:hover,
+        .nav-links .nav-link.active {
+            color: white !important;
+            background: rgba(255,255,255,0.05);
+        }
+        .nav-links .nav-link:hover::after,
+        .nav-links .nav-link.active::after { transform: scaleX(1); }
+        .nav-links .nav-link.active {
+            color: var(--accent) !important;
+            background: rgba(249,115,22,0.08);
+        }
+
+        /* Badge nav-da */
+        .nav-badge {
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 20px;
+            background: var(--accent);
+            color: white;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mobile navbar toggler */
+        .navbar-toggler-custom {
+            border: none;
+            background: none;
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 0 16px;
+        }
+        .mobile-nav {
+            display: none;
+            flex-direction: column;
+            background: #0f1e35;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .mobile-nav.open { display: flex; }
+        .mobile-nav a {
+            padding: 14px 24px;
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; gap: 10px;
+            transition: all 0.2s;
+        }
+        .mobile-nav a:hover { color: white; background: rgba(255,255,255,0.05); }
+        .mobile-nav a.active { color: var(--accent); }
+
+        /* ── MAIN ── */
+        main {
+            flex: 1;
+            padding: 28px 0 48px;
+        }
+
+        /* ── CARDS ── */
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+        }
+
+        /* ── SECTION HEADER ── */
+        .section-header { text-align: center; margin-bottom: 32px; }
+        .section-header h2 {
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        .section-header p { color: var(--text-muted); font-size: 1rem; }
+        .section-divider {
+            width: 60px; height: 4px;
+            background: var(--gradient);
+            border-radius: 4px;
+            margin: 12px auto 0;
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            background: var(--gradient);
+            border-radius: 16px;
+            padding: 32px 36px;
+            color: white;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 200px; height: 200px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; right: 100px;
+            width: 150px; height: 150px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+        }
+        .page-header h2 { font-weight: 800; font-size: 1.7rem; margin-bottom: 6px; }
+        .page-header p { opacity: 0.8; margin: 0; font-size: 0.95rem; }
+
+        /* ── STAT CARDS ── */
+        .stat-card {
+            border-radius: 14px;
+            padding: 20px 24px;
+            background: white;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.25s;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.10); }
+        .stat-icon {
+            width: 52px; height: 52px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+        .stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* ── BUTTONS ── */
+        .btn-primary-custom {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary-custom:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(15,76,117,0.35);
+        }
+        .btn-accent-custom {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-accent-custom:hover {
+            background: #ea6f0a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(249,115,22,0.35);
+        }
+
+        /* ── INFO CARDS ── */
+        .info-card {
+            border-radius: 14px;
+            border: none;
+            transition: all 0.3s;
+        }
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        }
+        .card-icon {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 16px;
+        }
+
+        /* ── UPLOAD ZONE ── */
+        .upload-zone {
+            border: 2px dashed #94a3b8;
+            border-radius: 14px;
+            padding: 40px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: #f8fafc;
+        }
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--primary-light);
+            background: #eff6ff;
+        }
+        .upload-zone i { font-size: 2.5rem; color: #94a3b8; margin-bottom: 12px; }
+        .upload-zone.has-file { border-color: var(--success); background: #f0fdf4; }
+        .upload-zone.has-file i { color: var(--success); }
+
+        /* ── RESULT IMAGE CARDS ── */
+        .result-chart-card {
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .result-chart-card .chart-header {
+            background: var(--dark);
+            color: white;
+            padding: 12px 18px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .result-chart-card .chart-body {
+            background: white;
+            padding: 16px;
+            text-align: center;
+        }
+
+        /* ── CLUSTER CARD ── */
+        .cluster-card {
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.25s;
+        }
+        .cluster-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.10); }
+        .cluster-header {
+            padding: 14px 18px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .cluster-body { padding: 16px 18px; background: white; }
+
+        /* ── TABLE ── */
+        .custom-table thead th {
+            background: var(--dark);
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 12px 16px;
+            border: none;
+        }
+        .custom-table tbody td {
+            padding: 11px 16px;
+            font-size: 0.88rem;
+            border-color: var(--border);
+            vertical-align: middle;
+        }
+        .custom-table tbody tr:hover { background: #f8fafc; }
+
+        /* ── LOADING ── */
+        .loading-overlay {
+            display: none;
+            text-align: center;
+            padding: 60px 24px;
+        }
+        .loading-spinner {
+            width: 56px; height: 56px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── PROGRESS BAR ── */
+        .progress { height: 6px; border-radius: 4px; background: var(--border); }
+        .progress-bar { background: var(--gradient); border-radius: 4px; }
+
+        /* ── ALERTS ── */
+        .alert-info-custom {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 0.88rem;
+            color: var(--primary);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--dark);
+            color: rgba(255,255,255,0.7);
+            padding: 48px 0 0;
+            margin-top: auto;
+        }
+        .footer-brand { color: white; font-weight: 800; font-size: 1.2rem; margin-bottom: 8px; }
+        .footer-desc { font-size: 0.85rem; line-height: 1.6; }
+        .footer-title { color: white; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-links { list-style: none; padding: 0; margin: 0; }
+        .footer-links li { margin-bottom: 8px; }
+        .footer-links a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .footer-links a:hover { color: var(--accent); }
+        .footer-links a i { width: 14px; }
+        .footer-stat {
+            text-align: center;
+            padding: 16px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+        }
+        .footer-stat-val { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+        .footer-stat-lbl { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 16px 0;
+            margin-top: 40px;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ── CAROUSEL ── */
+        .carousel-bg {
+            height: 440px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .carousel-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg,rgba(10,22,40,0.82) 0%,rgba(10,22,40,0.45) 60%,transparent 100%);
+        }
+        .carousel-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        .carousel-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1.25;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .carousel-desc {
+            font-size: 0.92rem;
+            color: rgba(255,255,255,0.75);
+            max-width: 400px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .carousel-btn {
+            display: inline-flex;
+            align-items: center;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            padding: 11px 24px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            transition: all 0.25s;
+        }
+        .carousel-btn:hover {
+            background: #ea6f0a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(249,115,22,0.4);
+            color: white;
+        }
+        .carousel-indicators button {
+            width: 28px;
+            height: 4px;
+            border-radius: 2px;
+            border: none;
+            background: rgba(255,255,255,0.5);
+            transition: all 0.3s;
+        }
+        .carousel-indicators .active {
+            width: 48px;
+            background: var(--accent);
+        }
+        .carousel-ctrl-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            transition: all 0.25s;
+            color: white;
+        }
+        .carousel-ctrl-circle:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .carousel-control-prev { left: 16px; }
+        .carousel-control-next { right: 16px; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 991px) {
+            .navbar-brand-wrap { clip-path: none; padding-right: 24px; }
+            .nav-links { display: none; }
+        }
+        @media (min-width: 992px) {
+            .navbar-toggler-custom { display: none; }
+            .mobile-nav { display: none !important; }
+        }
+        @media (max-width: 768px) {
+            .carousel-bg { height: 300px; }
+            .carousel-title { font-size: 1.4rem; }
+        }
+    </style>
+    {% block extra_style %}{% endblock %}
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar">
+    <div class="container-fluid px-0">
+        <div class="navbar-inner">
+            <!-- Brand -->
+            <a class="navbar-brand-wrap" href="{% url 'index' %}">
+                <div class="brand-icon"><i class="fas fa-signal"></i></div>
+                <div>
+                    <div class="brand-text">TeleChurn AI</div>
+                    <div class="brand-sub">Churn Analytics</div>
+                </div>
+            </a>
+
+            <!-- Desktop Links -->
+            <ul class="nav-links ms-2">
+                <li class="nav-item">
+                    <a href="{% url 'index' %}" class="nav-link {% if request.path == '/' or request.path == '/index/' %}active{% endif %}">
+                        <i class="fas fa-home"></i> Asosiy
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'database' %}" class="nav-link {% if '/database/' in request.path %}active{% endif %}">
+                        <i class="fas fa-database"></i> Dataset
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'algorithm' %}" class="nav-link {% if '/algorithm/' in request.path %}active{% endif %}">
+                        <i class="fas fa-code-branch"></i> Algoritmlar
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'analysis' %}" class="nav-link {% if '/analysis/' in request.path %}active{% endif %}">
+                        <i class="fas fa-chart-bar"></i> Klassifikatsiya
+                        <span class="nav-badge">ML</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'klassterlash' %}" class="nav-link {% if '/klassterlash/' in request.path %}active{% endif %}">
+                        <i class="fas fa-layer-group"></i> Klasterlash
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Status badge -->
+            <div class="d-none d-lg-flex align-items-center pe-4 ms-auto">
+                <span style="font-size:0.75rem; color:rgba(255,255,255,0.4);">IBM Telco Dataset</span>
+                <span class="ms-2" style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;box-shadow:0 0 6px #10b981;"></span>
+            </div>
+
+            <!-- Mobile toggle -->
+            <button class="navbar-toggler-custom ms-auto" onclick="toggleMobileNav()" id="navToggle">
+                <i class="fas fa-bars" id="navIcon"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Nav -->
+        <div class="mobile-nav" id="mobileNav">
+            <a href="{% url 'index' %}" class="{% if request.path == '/' %}active{% endif %}"><i class="fas fa-home"></i> Asosiy sahifa</a>
+            <a href="{% url 'database' %}" class="{% if '/database/' in request.path %}active{% endif %}"><i class="fas fa-database"></i> Dataset</a>
+            <a href="{% url 'algorithm' %}" class="{% if '/algorithm/' in request.path %}active{% endif %}"><i class="fas fa-code-branch"></i> Algoritmlar</a>
+            <a href="{% url 'analysis' %}" class="{% if '/analysis/' in request.path %}active{% endif %}"><i class="fas fa-chart-bar"></i> Klassifikatsiya</a>
+            <a href="{% url 'klassterlash' %}" class="{% if '/klassterlash/' in request.path %}active{% endif %}"><i class="fas fa-layer-group"></i> Klasterlash</a>
+        </div>
+    </div>
+</nav>
+
+
+    <!-- ═══ CAROUSEL ═══ -->
+    {% block carousel %}
+    <div class="container-fluid px-0 mb-0">
+        <div id="telecomCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+            <!-- Indicators -->
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#telecomCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#telecomCarousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#telecomCarousel" data-bs-slide-to="2"></button>
+            </div>
+
+            <div class="carousel-inner">
+                <!-- Slide 1 -->
+                <div class="carousel-item active">
+                    <div class="carousel-bg" style="background-image:url('{% static 'img/telecom1.jpg' %}');">
+                        <div class="carousel-overlay"></div>
+                    </div>
+                    <div class="carousel-caption text-start" style="left:8%;right:auto;bottom:30%;">
+                        <span class="carousel-badge">Churn Prediction</span>
+                        <h2 class="carousel-title">Mijoz yo'qotishni<br>oldindan biling</h2>
+                        <p class="carousel-desc">ML algoritmlari bilan 2–3 oy oldin churn xavfini aniqlang</p>
+                        <a href="{% url 'analysis' %}" class="carousel-btn">
+                            <i class="fas fa-chart-bar me-2"></i>Tahlilni boshlash
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="carousel-item">
+                    <div class="carousel-bg" style="background-image:url('{% static 'img/telecom2.jpg' %}');">
+                        <div class="carousel-overlay"></div>
+                    </div>
+                    <div class="carousel-caption text-start" style="left:8%;right:auto;bottom:30%;">
+                        <span class="carousel-badge">K-Means Segmentatsiya</span>
+                        <h2 class="carousel-title">Mijozlarni<br>guruhlarga ajrating</h2>
+                        <p class="carousel-desc">Har segment uchun maqsadli marketing strategiyasi ishlab chiqing</p>
+                        <a href="{% url 'klassterlash' %}" class="carousel-btn">
+                            <i class="fas fa-layer-group me-2"></i>Klasterlash
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="carousel-item">
+                    <div class="carousel-bg" style="background-image:url('{% static 'img/telecom3.jpg' %}');">
+                        <div class="carousel-overlay"></div>
+                    </div>
+                    <div class="carousel-caption text-start" style="left:8%;right:auto;bottom:30%;">
+                        <span class="carousel-badge">IBM Telco Dataset</span>
+                        <h2 class="carousel-title">7,043 mijoz,<br>21 ta xususiyat</h2>
+                        <p class="carousel-desc">Random Forest, Gradient Boosting va Logistik Regressiya modellari</p>
+                        <a href="{% url 'database' %}" class="carousel-btn">
+                            <i class="fas fa-database me-2"></i>Dataset haqida
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#telecomCarousel" data-bs-slide="prev">
+                <div class="carousel-ctrl-circle"><i class="fas fa-chevron-left"></i></div>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#telecomCarousel" data-bs-slide="next">
+                <div class="carousel-ctrl-circle"><i class="fas fa-chevron-right"></i></div>
+            </button>
+        </div>
+    </div>
+    {% endblock carousel %}
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+    <div class="container">
+        <div class="row g-5">
+            <!-- Brand col -->
+            <div class="col-lg-4">
+                <div class="d-flex align-items-center gap-3" style="margin-bottom:16px;">
+                    <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0f4c75,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:18px;color:white;">
+                        <i class="fas fa-signal"></i>
+                    </div>
+                    <div class="footer-brand">TeleChurn AI</div>
+                </div>
+                <p class="footer-desc">Telekom mijozlarning churn ehtimolini Machine Learning orqali oldindan bashorat qilish platformasi. IBM Telco dataseti asosida.</p>
+                <div class="row g-2 mt-3">
+                    <div class="col-4">
+                        <div class="footer-stat">
+                            <div class="footer-stat-val">7K+</div>
+                            <div class="footer-stat-lbl">Mijozlar</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="footer-stat">
+                            <div class="footer-stat-val">3</div>
+                            <div class="footer-stat-lbl">ML model</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="footer-stat">
+                            <div class="footer-stat-val">82%</div>
+                            <div class="footer-stat-lbl">Aniqlik</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Links col -->
+            <div class="col-lg-2 col-6">
+                <div class="footer-title">Sahifalar</div>
+                <ul class="footer-links">
+                    <li><a href="{% url 'index' %}"><i class="fas fa-home"></i>Asosiy</a></li>
+                    <li><a href="{% url 'database' %}"><i class="fas fa-database"></i>Dataset</a></li>
+                    <li><a href="{% url 'algorithm' %}"><i class="fas fa-code-branch"></i>Algoritmlar</a></li>
+                    <li><a href="{% url 'analysis' %}"><i class="fas fa-chart-bar"></i>Klassifikatsiya</a></li>
+                    <li><a href="{% url 'klassterlash' %}"><i class="fas fa-layer-group"></i>Klasterlash</a></li>
+                </ul>
+            </div>
+
+            <!-- Tech col -->
+            <div class="col-lg-3 col-6">
+                <div class="footer-title">Texnologiyalar</div>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fab fa-python"></i>Python 3.11</a></li>
+                    <li><a href="#"><i class="fas fa-cube"></i>Django 5.2</a></li>
+                    <li><a href="#"><i class="fas fa-brain"></i>scikit-learn</a></li>
+                    <li><a href="#"><i class="fas fa-table"></i>pandas / numpy</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i>matplotlib / seaborn</a></li>
+                </ul>
+            </div>
+
+            <!-- Dataset col -->
+            <div class="col-lg-3">
+                <div class="footer-title">Dataset</div>
+                <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:16px; border:1px solid rgba(255,255,255,0.08);">
+                    <div style="color:white; font-weight:700; margin-bottom:8px;">IBM Telco Customer Churn</div>
+                    <div style="font-size:0.82rem; line-height:1.7; color:rgba(255,255,255,0.55);">
+                        7,043 ta mijoz yozuvi<br>
+                        21 ta xususiyat<br>
+                        26.5% churn rate<br>
+                        Kaggle'da bepul mavjud
+                    </div>
+                    <a href="https://www.kaggle.com/datasets/blastchar/telco-customer-churn" target="_blank"
+                       style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;color:var(--accent);font-size:0.82rem;font-weight:600;text-decoration:none;">
+                        <i class="fas fa-external-link-alt"></i> Kaggle'ga o'tish
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span>&copy; 2025 TeleChurn AI — Telekom Churn Tahlil Platformasi</span>
+            <span style="display:flex;align-items:center;gap:6px;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#10b981;"></span>
+                Django 5.2 · scikit-learn · Python 3.11
+            </span>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+function toggleMobileNav() {
+    const nav = document.getElementById('mobileNav');
+    const icon = document.getElementById('navIcon');
+    nav.classList.toggle('open');
+    icon.className = nav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+}
+// Scroll effect
+window.addEventListener('scroll', () => {
+    document.querySelector('.navbar').style.boxShadow =
+        window.scrollY > 20 ? '0 4px 30px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.3)';
+});
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

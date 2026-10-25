@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}TeleChurn AI — Bosh Sahifa{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<!-- ── HERO ── -->
+<div style="background:linear-gradient(135deg,#0a1628 0%,#0f4c75 50%,#1b6ca8 100%);border-radius:20px;padding:60px 48px;color:white;position:relative;overflow:hidden;margin-bottom:32px;">
+    <div style="position:absolute;top:-60px;right:-60px;width:280px;height:280px;border-radius:50%;background:rgba(6,182,212,0.1);"></div>
+    <div style="position:absolute;bottom:-80px;right:200px;width:200px;height:200px;border-radius:50%;background:rgba(249,115,22,0.08);"></div>
+    <div style="position:absolute;top:20px;right:48px;opacity:0.06;font-size:10rem;"><i class="fas fa-signal"></i></div>
+    <div class="row align-items-center">
+        <div class="col-lg-7">
+            <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:30px;padding:5px 16px;font-size:0.78rem;font-weight:600;color:#fb923c;margin-bottom:20px;letter-spacing:1px;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#fb923c;animation:pulse 2s infinite;"></span>
+                MACHINE LEARNING · CHURN PREDICTION
+            </div>
+            <h1 style="font-size:2.6rem;font-weight:800;line-height:1.2;margin-bottom:16px;">
+                Telekom Mijozlar<br><span style="color:#06b6d4;">Churn Rate</span> Tahlili
+            </h1>
+            <p style="font-size:1.05rem;opacity:0.8;line-height:1.7;max-width:520px;margin-bottom:28px;">
+                Random Forest, Gradient Boosting va K-Means algoritmlari yordamida mijoz yo'qotish ehtimolini oldindan bashorat qiling va proaktiv choralar ko'ring.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="{% url 'analysis' %}" style="background:#f97316;color:white;border:none;border-radius:12px;padding:13px 28px;font-weight:700;font-size:0.95rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.25s;">
+                    <i class="fas fa-chart-bar"></i> Klassifikatsiya
+                </a>
+                <a href="{% url 'klassterlash' %}" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.25);border-radius:12px;padding:13px 28px;font-weight:600;font-size:0.95rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.25s;backdrop-filter:blur(4px);">
+                    <i class="fas fa-layer-group"></i> Klasterlash
+                </a>
+                <a href="{% url 'database' %}" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.25);border-radius:12px;padding:13px 28px;font-weight:600;font-size:0.95rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.25s;backdrop-filter:blur(4px);">
+                    <i class="fas fa-database"></i> Dataset
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-5 d-none d-lg-flex justify-content-end mt-4 mt-lg-0">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:300px;">
+                <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:20px;text-align:center;backdrop-filter:blur(4px);">
+                    <div style="font-size:2rem;font-weight:800;color:#f97316;">26.5%</div>
+                    <div style="font-size:0.72rem;opacity:0.6;margin-top:4px;">Churn Rate</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:20px;text-align:center;backdrop-filter:blur(4px);">
+                    <div style="font-size:2rem;font-weight:800;color:#06b6d4;">7,043</div>
+                    <div style="font-size:0.72rem;opacity:0.6;margin-top:4px;">Mijozlar</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:20px;text-align:center;backdrop-filter:blur(4px);">
+                    <div style="font-size:2rem;font-weight:800;color:#10b981;">~82%</div>
+                    <div style="font-size:0.72rem;opacity:0.6;margin-top:4px;">Aniqlik</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:20px;text-align:center;backdrop-filter:blur(4px);">
+                    <div style="font-size:2rem;font-weight:800;color:#a78bfa;">3</div>
+                    <div style="font-size:0.72rem;opacity:0.6;margin-top:4px;">ML Model</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── PROBLEM / SOLUTION ── -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div style="background:white;border-radius:16px;border:1px solid #fee2e2;padding:28px;height:100%;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <div style="width:44px;height:44px;border-radius:12px;background:#fef2f2;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#ef4444;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h5 style="margin:0;font-weight:700;color:#991b1b;">Muammo</h5>
+            </div>
+            <p style="color:#6b7280;line-height:1.7;margin:0;font-size:0.92rem;">
+                Telekom kompaniyalari har yili mijozlarning <strong style="color:#ef4444;">15–25%</strong> ni yo'qotadi.
+                Bitta mijozni yo'qotish <strong style="color:#ef4444;">$200–$400</strong> zarar keltirishi mumkin.
+                Churn oldindan aniqlanmasa, proaktiv choralar ko'rish imkonsiz bo'ladi.
+            </p>
+            <div style="margin-top:16px;padding:12px;background:#fef2f2;border-radius:10px;font-size:0.85rem;color:#991b1b;">
+                <i class="fas fa-arrow-trend-down me-2"></i>
+                Yo'qotilgan mijozni qaytarish, yangi jalb qilishdan <strong>3-5x qimmat</strong>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div style="background:white;border-radius:16px;border:1px solid #d1fae5;padding:28px;height:100%;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <div style="width:44px;height:44px;border-radius:12px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#10b981;">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h5 style="margin:0;font-weight:700;color:#065f46;">Yechim</h5>
+            </div>
+            <p style="color:#6b7280;line-height:1.7;margin:0;font-size:0.92rem;">
+                ML algoritmlari yordamida xavf ostidagi mijozlarni <strong style="color:#10b981;">2–3 oy oldin</strong> aniqlang.
+                Segmentlarga ajrating va ularga maqsadli chegirmalar, maxsus takliflar taqdim eting.
+            </p>
+            <div style="margin-top:16px;padding:12px;background:#f0fdf4;border-radius:10px;font-size:0.85rem;color:#065f46;">
+                <i class="fas fa-arrow-trend-up me-2"></i>
+                Erta aralashuv churn darajasini <strong>30–40% ga kamaytiradi</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── 4 FEATURE CARDS ── -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:22px;text-align:center;height:100%;transition:all 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 28px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
+            <div style="width:54px;height:54px;border-radius:14px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#1b6ca8;margin:0 auto 14px;">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h6 style="font-weight:700;margin-bottom:8px;">Klassifikatsiya</h6>
+            <p style="font-size:0.82rem;color:#64748b;margin:0;">Random Forest, GBM, Logistik Regressiya</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:22px;text-align:center;height:100%;transition:all 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 28px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
+            <div style="width:54px;height:54px;border-radius:14px;background:#fdf4ff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#9333ea;margin:0 auto 14px;">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <h6 style="font-weight:700;margin-bottom:8px;">K-Means Klasterlash</h6>
+            <p style="font-size:0.82rem;color:#64748b;margin:0;">Mijozlarni guruhlariga ko'ra segmentlash</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:22px;text-align:center;height:100%;transition:all 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 28px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
+            <div style="width:54px;height:54px;border-radius:14px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#f97316;margin:0 auto 14px;">
+                <i class="fas fa-chart-area"></i>
+            </div>
+            <h6 style="font-weight:700;margin-bottom:8px;">Vizualizatsiya</h6>
+            <p style="font-size:0.82rem;color:#64748b;margin:0;">ROC, Heatmap, Scatter, Feature Importance</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:22px;text-align:center;height:100%;transition:all 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 28px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
+            <div style="width:54px;height:54px;border-radius:14px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#10b981;margin:0 auto 14px;">
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <h6 style="font-weight:700;margin-bottom:8px;">Tavsiyalar</h6>
+            <p style="font-size:0.82rem;color:#64748b;margin:0;">Har klaster uchun marketing strategiyasi</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<div style="background:linear-gradient(135deg,#0a1628,#0f4c75);border-radius:20px;padding:40px 36px;margin-bottom:32px;color:white;">
+    <div class="text-center mb-4">
+        <h3 style="font-weight:800;margin-bottom:6px;">Qanday ishlaydi?</h3>
+        <p style="opacity:0.6;font-size:0.9rem;">3 qadam — CSV yuklang, natija tayyor</p>
+    </div>
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-4 text-center">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(249,115,22,0.15);border:2px solid rgba(249,115,22,0.4);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:800;color:#fb923c;margin:0 auto 16px;">1</div>
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin:0 auto 12px;"><i class="fas fa-file-csv" style="color:#06b6d4;"></i></div>
+            <h6 style="font-weight:700;">CSV Yuklang</h6>
+            <p style="font-size:0.82rem;opacity:0.55;margin:0;">IBM Telco formatidagi mijoz datasetini yuklang</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(249,115,22,0.15);border:2px solid rgba(249,115,22,0.4);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:800;color:#fb923c;margin:0 auto 16px;">2</div>
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin:0 auto 12px;"><i class="fas fa-brain" style="color:#a78bfa;"></i></div>
+            <h6 style="font-weight:700;">Model Tanlang</h6>
+            <p style="font-size:0.82rem;opacity:0.55;margin:0;">RF, GBM yoki Logistik Regressiyadan birini tanlang</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(249,115,22,0.15);border:2px solid rgba(249,115,22,0.4);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:800;color:#fb923c;margin:0 auto 16px;">3</div>
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin:0 auto 12px;"><i class="fas fa-poll-h" style="color:#10b981;"></i></div>
+            <h6 style="font-weight:700;">Natijalarni Ko'ring</h6>
+            <p style="font-size:0.82rem;opacity:0.55;margin:0;">ROC, CM, Feature Importance va klaster grafiklari</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── DATASET INFO ── -->
+<div style="background:white;border-radius:16px;border:1px solid #e2e8f0;padding:32px;margin-bottom:32px;">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-4">
+            <div style="background:linear-gradient(135deg,#0f4c75,#06b6d4);border-radius:14px;padding:24px;color:white;text-align:center;">
+                <i class="fas fa-database fa-3x mb-3" style="opacity:0.8;"></i>
+                <h5 style="font-weight:800;margin-bottom:4px;">IBM Telco</h5>
+                <p style="opacity:0.7;font-size:0.85rem;margin:0;">Customer Churn Dataset</p>
+                <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:10px;">
+                        <div style="font-weight:800;font-size:1.2rem;">7,043</div>
+                        <div style="font-size:0.7rem;opacity:0.7;">Yozuvlar</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:10px;">
+                        <div style="font-weight:800;font-size:1.2rem;">21</div>
+                        <div style="font-size:0.7rem;opacity:0.7;">Ustunlar</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <h4 style="font-weight:800;margin-bottom:6px;">Asosiy xususiyatlar:</h4>
+            <p style="color:#64748b;font-size:0.88rem;margin-bottom:16px;">Dataset 21 ta ustundan iborat bo'lib, mijozning shaxsiy ma'lumotlari, xizmatlardan foydalanish tarixi va to'lov ma'lumotlarini o'z ichiga oladi.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">tenure</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">MonthlyCharges</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">TotalCharges</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">Contract</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">InternetService</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">PaymentMethod</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">TechSupport</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">OnlineSecurity</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">SeniorCitizen</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">Partner</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#eff6ff;color:#1b6ca8;font-size:0.78rem;font-weight:600;border:1px solid #bfdbfe;">Dependents</span>
+                <span style="padding:5px 12px;border-radius:20px;background:#fef2f2;color:#dc2626;font-size:0.78rem;font-weight:700;border:1px solid #fecaca;">Churn ← Target</span>
+            </div>
+            <a href="https://www.kaggle.com/datasets/blastchar/telco-customer-churn" target="_blank"
+               style="display:inline-flex;align-items:center;gap:8px;background:#0f4c75;color:white;text-decoration:none;border-radius:10px;padding:10px 20px;font-size:0.88rem;font-weight:600;">
+                <i class="fas fa-download"></i> Kaggle'dan yuklab olish
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ── CTA ── -->
+<div class="text-center py-4">
+    <h3 style="font-weight:800;margin-bottom:8px;">Boshlashga tayyormisiz?</h3>
+    <p style="color:#64748b;margin-bottom:24px;">CSV datasetingizni yuklang va darhol natija oling</p>
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% url 'analysis' %}" style="background:linear-gradient(135deg,#0f4c75,#06b6d4);color:white;border-radius:12px;padding:14px 32px;font-weight:700;text-decoration:none;font-size:1rem;display:inline-flex;align-items:center;gap:8px;">
+            <i class="fas fa-chart-bar"></i> Klassifikatsiya boshlash
+        </a>
+        <a href="{% url 'klassterlash' %}" style="background:#f97316;color:white;border-radius:12px;padding:14px 32px;font-weight:700;text-decoration:none;font-size:1rem;display:inline-flex;align-items:center;gap:8px;">
+            <i class="fas fa-layer-group"></i> Klasterlash boshlash
+        </a>
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0%,100%{opacity:1;} 50%{opacity:0.4;}
+}
+</style>
+{% endblock %}

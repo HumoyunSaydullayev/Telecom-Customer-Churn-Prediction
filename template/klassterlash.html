@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}Klasterlash — Mijoz Segmentatsiyasi{% endblock %}
+
+{% block carousel %}{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<!-- Page Header -->
+<div class="page-header mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border-radius:20px;padding:4px 14px;font-size:0.75rem;font-weight:600;letter-spacing:1px;margin-bottom:10px;color:rgba(255,255,255,0.8);">
+                <i class="fas fa-layer-group"></i> KLASTERLASH · K-MEANS + PCA
+            </div>
+            <h2 style="margin-bottom:6px;">Mijozlar Segmentatsiyasi</h2>
+            <p>K-Means va PCA yordamida mijozlarni xatti-harakatlari bo'yicha guruhlash</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="{% url 'analysis' %}" style="background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:9px 18px;font-size:0.85rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                <i class="fas fa-chart-bar"></i> Klassifikatsiya
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if error %}
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;">
+    <i class="fas fa-exclamation-triangle" style="color:#ef4444;margin-top:2px;"></i>
+    <div><strong style="color:#dc2626;">Xatolik!</strong> <span style="color:#b91c1c;font-size:0.9rem;">{{ error }}</span></div>
+</div>
+{% endif %}
+
+<!-- Upload Form -->
+<form id="clusterForm" method="post" enctype="multipart/form-data" action="{% url 'klassterlash' %}">
+    {% csrf_token %}
+    <div class="row g-4 mb-4">
+        <!-- Upload Zone -->
+        <div class="col-lg-7">
+            <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;">
+                <div style="padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-upload" style="color:#0f4c75;"></i>
+                    <span style="font-weight:700;font-size:0.95rem;">CSV Fayl Yuklash</span>
+                </div>
+                <div style="padding:20px;">
+                    <div class="upload-zone" id="dropZone" onclick="document.getElementById('csvFile').click()">
+                        <i class="fas fa-file-csv" id="uploadIcon"></i>
+                        <h6 style="font-weight:700;margin-bottom:6px;color:#374151;">CSV faylni bu yerga tashlang</h6>
+                        <p style="font-size:0.82rem;color:#94a3b8;margin-bottom:12px;">IBM Telco formatidagi dataset</p>
+                        <div id="fileLabel">
+                            <span style="background:#f1f5f9;color:#64748b;padding:4px 14px;border-radius:20px;font-size:0.78rem;font-weight:600;">Fayl tanlanmagan</span>
+                        </div>
+                    </div>
+                    <input type="file" id="csvFile" name="csv_file" accept=".csv" class="d-none" onchange="handleFile(this)">
+                    <div style="margin-top:12px;padding:11px;background:#fdf4ff;border:1px solid #e9d5ff;border-radius:10px;font-size:0.8rem;color:#7c3aed;display:flex;gap:8px;">
+                        <i class="fas fa-info-circle" style="margin-top:1px;flex-shrink:0;"></i>
+                        <span>Klasterlash uchun: <strong>tenure, MonthlyCharges, TotalCharges</strong> ustunlari avtomatik tanlanadi.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cluster Config -->
+        <div class="col-lg-5">
+            <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;">
+                <div style="padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-sliders-h" style="color:#0f4c75;"></i>
+                    <span style="font-weight:700;font-size:0.95rem;">Klaster Soni Tanlash</span>
+                </div>
+                <div style="padding:20px;">
+                    <p style="font-size:0.85rem;color:#64748b;margin-bottom:14px;">Nechta klasterga ajratmoqchisiz?</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+                        <label style="cursor:pointer;">
+                            <input type="radio" name="n_clusters" value="2" style="display:none;" onchange="selectK(2)">
+                            <div id="k2" style="border:2px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center;transition:all 0.2s;">
+                                <div style="font-size:1.8rem;font-weight:800;color:#64748b;">2</div>
+                                <div style="font-size:0.75rem;color:#94a3b8;">Xavfli / Xavfsiz</div>
+                            </div>
+                        </label>
+                        <label style="cursor:pointer;">
+                            <input type="radio" name="n_clusters" value="3" checked style="display:none;" onchange="selectK(3)">
+                            <div id="k3" style="border:2px solid #0f4c75;background:#eff6ff;border-radius:12px;padding:16px;text-align:center;transition:all 0.2s;">
+                                <div style="font-size:1.8rem;font-weight:800;color:#0f4c75;">3</div>
+                                <div style="font-size:0.75rem;color:#1b6ca8;font-weight:600;">Tavsiya ✓</div>
+                            </div>
+                        </label>
+                        <label style="cursor:pointer;">
+                            <input type="radio" name="n_clusters" value="4" style="display:none;" onchange="selectK(4)">
+                            <div id="k4" style="border:2px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center;transition:all 0.2s;">
+                                <div style="font-size:1.8rem;font-weight:800;color:#64748b;">4</div>
+                                <div style="font-size:0.75rem;color:#94a3b8;">To'liq segment</div>
+                            </div>
+                        </label>
+                        <label style="cursor:pointer;">
+                            <input type="radio" name="n_clusters" value="5" style="display:none;" onchange="selectK(5)">
+                            <div id="k5" style="border:2px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center;transition:all 0.2s;">
+                                <div style="font-size:1.8rem;font-weight:800;color:#64748b;">5</div>
+                                <div style="font-size:0.75rem;color:#94a3b8;">Batafsil tahlil</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div style="padding:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:0.8rem;color:#064e3b;margin-bottom:14px;">
+                        <i class="fas fa-lightbulb me-1" style="color:#059669;"></i>
+                        <strong>k=3</strong> — Sodiq, Xavf ostidagi, Churn xavfi yuqori
+                    </div>
+                    <button type="submit" id="submitBtn" disabled
+                        style="background:linear-gradient(135deg,#0f4c75,#9333ea);color:white;border:none;border-radius:10px;padding:13px;width:100%;font-weight:700;font-size:0.92rem;cursor:not-allowed;opacity:0.5;display:flex;align-items:center;justify-content:center;gap:8px;">
+                        <i class="fas fa-layer-group"></i> Klasterlashni Boshlash
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Loading -->
+<div id="loadingDiv" style="display:none;text-align:center;padding:60px 24px;background:white;border-radius:14px;border:1px solid #e2e8f0;margin-bottom:24px;">
+    <div style="width:60px;height:60px;border:4px solid #e2e8f0;border-top-color:#9333ea;border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 20px;"></div>
+    <h5 style="font-weight:700;margin-bottom:8px;">Klasterlash amalga oshirilmoqda...</h5>
+    <p style="color:#64748b;font-size:0.88rem;">K-Means + PCA hisoblanmoqda</p>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
+{% if results %}
+<div id="results">
+    <!-- Result Header -->
+    <div style="background:linear-gradient(135deg,#0a1628,#9333ea);border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="color:white;">
+            <h4 style="margin:0;font-weight:800;">K-Means Klasterlash — {{ n_clusters }} klaster</h4>
+            <p style="opacity:0.6;margin:4px 0 0;font-size:0.85rem;">{{ total_records }} ta yozuv · PCA tushuntirilganligi: {{ explained_variance }}% · Manba: {{ km_source }}</p>
+        </div>
+        <a href="{% url 'klassterlash' %}" style="background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 18px;font-size:0.85rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px;">
+            <i class="fas fa-redo"></i> Yangi klasterlash
+        </a>
+    </div>
+
+    <!-- Cluster Cards -->
+    <div class="row g-3 mb-4">
+        {% for cluster in cluster_info %}
+        {% with colors="0:#0f4c75,1:#e63946,2:#f97316,3:#9333ea,4:#10b981" %}
+        <div class="col-md-{% if n_clusters <= 3 %}4{% elif n_clusters == 4 %}3{% else %}{% cycle '4' '4' '4' '6' '6' %}{% endif %}">
+            <div class="cluster-card">
+                <div class="cluster-header" style="background:{% if cluster.id == 0 %}#0f4c75{% elif cluster.id == 1 %}#e63946{% elif cluster.id == 2 %}#f97316{% elif cluster.id == 3 %}#9333ea{% else %}#10b981{% endif %};">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span>Klaster {{ cluster.id }}: {{ cluster.label }}</span>
+                        <span style="background:rgba(255,255,255,0.2);padding:2px 10px;border-radius:10px;font-size:0.72rem;">{{ cluster.percentage }}%</span>
+                    </div>
+                </div>
+                <div class="cluster-body">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+                        <div style="text-align:center;padding:10px 4px;background:#fef2f2;border-radius:8px;">
+                            <div style="font-size:1rem;font-weight:800;color:#dc2626;">{{ cluster.churn_rate }}%</div>
+                            <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Churn</div>
+                        </div>
+                        <div style="text-align:center;padding:10px 4px;background:#eff6ff;border-radius:8px;">
+                            <div style="font-size:1rem;font-weight:800;color:#0f4c75;">{{ cluster.avg_tenure }}</div>
+                            <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Tenure</div>
+                        </div>
+                        <div style="text-align:center;padding:10px 4px;background:#f8fafc;border-radius:8px;">
+                            <div style="font-size:1rem;font-weight:800;color:#374151;">${{ cluster.avg_monthly }}</div>
+                            <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Oylik</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.82rem;">
+                        <span style="color:#64748b;">Mijozlar soni:</span>
+                        <strong>{{ cluster.count }} ta</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="result-chart-card">
+                <div class="chart-header"><i class="fas fa-braille"></i> Klaster Scatter Plot (PCA proeksiyasi)</div>
+                <div class="chart-body"><img src="data:image/png;base64,{{ scatter_img }}" class="img-fluid" alt="Scatter Plot"></div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="result-chart-card" style="height:100%;">
+                <div class="chart-header"><i class="fas fa-chart-bar"></i> Klaster Hajmlari</div>
+                <div class="chart-body d-flex align-items-center justify-content-center">
+                    <img src="data:image/png;base64,{{ bar_img }}" class="img-fluid" alt="Bar Chart">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="result-chart-card mb-4">
+        <div class="chart-header"><i class="fas fa-fire"></i> Klaster Xususiyatlari Issiqlik Xaritasi (Heatmap)</div>
+        <div class="chart-body"><img src="data:image/png;base64,{{ heatmap_img }}" class="img-fluid" alt="Heatmap"></div>
+    </div>
+
+    <!-- Marketing Recommendations -->
+    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:24px;">
+        <div style="background:#0a1628;color:white;padding:14px 20px;display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-lightbulb" style="color:#f59e0b;"></i>
+            <span style="font-weight:600;font-size:0.9rem;">Marketing Tavsiyalari — Klaster bo'yicha</span>
+        </div>
+        <div style="padding:20px;">
+            <div class="row g-3">
+                {% for cluster in cluster_info %}
+                <div class="col-md-4">
+                    <div style="border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;">
+                        <div style="padding:12px 16px;font-weight:700;font-size:0.85rem;background:{% if forloop.counter0 == 0 %}#eff6ff;color:#1e3a8a{% elif forloop.counter0 == 1 %}#fef2f2;color:#991b1b{% elif forloop.counter0 == 2 %}#fff7ed;color:#92400e{% elif forloop.counter0 == 3 %}#fdf4ff;color:#581c87{% else %}#f0fdf4;color:#065f46{% endif %};">
+                            Klaster {{ cluster.id }}: {{ cluster.label }}
+                        </div>
+                        <div style="padding:14px 16px;background:#fafafa;">
+                            {% if cluster.churn_rate|floatformat:"0" >= "40" %}
+                            <div style="font-size:0.82rem;color:#374151;display:flex;flex-direction:column;gap:8px;">
+                                <div style="display:flex;gap:8px;"><i class="fas fa-phone" style="color:#dc2626;margin-top:2px;flex-shrink:0;"></i><span>Darhol aloqa va ushlab qolish kampaniyasi</span></div>
+                                <div style="display:flex;gap:8px;"><i class="fas fa-gift" style="color:#dc2626;margin-top:2px;flex-shrink:0;"></i><span>Maxsus chegirma va bonus taklif qilish</span></div>
+                                <div style="display:flex;gap:8px;"><i class="fas fa-headset" style="color:#dc2626;margin-top:2px;flex-shrink:0;"></i><span>Premium support va muammolarni hal qilish</span></div>
+                            </div>
+                            {% elif cluster.churn_rate|floatformat:"0" >= "20" %}
+                            <div style="font-size:0.82rem;color:#374151;display:flex;flex-direction:column;gap:8px;">
+                                <div style="display:flex;gap:8px;"><i class="fas fa-envelope" style="color:#d97706;margin-top:2px;flex-shrink:0;"></i><span>Oylik engagement email kampaniyasi</span></div>
+                                <div style="display:flex;gap:8px;"><i class="fas fa-star" style="color:#d97706;margin-top:2px;flex-shrink:0;"></i><span>Loyalty dasturiga qo'shish va bonuslar</span></div>
+                                <div style="display:flex;gap:8px;"><i class="fas fa-plus-circle" style="color:#d97706;margin-top:2px;flex-shrink:0;"></i><span>Qo'shimcha xizmatlar upsell qilish</span></div>
+                            </div>
+                            {% else %}
+                            <div style="font-size:0.82rem;color:#374151;display:flex;flex-direction:column;gap:8px;">
+                                <div style="display:flex;gap:8px;"><i class="fas fa-trophy" style="color:#059669;margin-top:2px;flex-shrink:0;"></i><span>VIP loyalty mukofotlari va maxsus imtiyozlar</span></div>
+                                <div style="display:flex;gap:8px;"><i class="fas fa-share-alt" style="color:#059669;margin-top:2px;flex-shrink:0;"></i><span>Referral dasturida ishtirok ettirish</span></div>
+                                <div style="display:flex;gap:8px;"><i class="fas fa-arrow-up" style="color:#059669;margin-top:2px;flex-shrink:0;"></i><span>Premium tarifga upsell imkoniyatlar</span></div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<script>
+function selectK(k) {
+    [2,3,4,5].forEach(n => {
+        const el = document.getElementById('k'+n);
+        if (n === k) {
+            el.style.borderColor = '#0f4c75';
+            el.style.background = '#eff6ff';
+        } else {
+            el.style.borderColor = '#e2e8f0';
+            el.style.background = 'white';
+        }
+    });
+}
+
+function handleFile(input) {
+    const btn = document.getElementById('submitBtn');
+    const zone = document.getElementById('dropZone');
+    const icon = document.getElementById('uploadIcon');
+    const label = document.getElementById('fileLabel');
+    if (input.files.length > 0) {
+        zone.classList.add('has-file');
+        icon.style.color = '#10b981';
+        label.innerHTML = `<span style="background:#f0fdf4;color:#059669;padding:4px 14px;border-radius:20px;font-size:0.78rem;font-weight:700;border:1px solid #bbf7d0;"><i class="fas fa-check me-1"></i>${input.files[0].name}</span>`;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+    }
+}
+
+document.getElementById('clusterForm').addEventListener('submit', function() {
+    document.getElementById('loadingDiv').style.display = 'block';
+    document.getElementById('submitBtn').disabled = true;
+});
+
+// Drag & drop
+const zone = document.getElementById('dropZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const input = document.getElementById('csvFile');
+    if (e.dataTransfer.files.length) {
+        const dt = new DataTransfer();
+        dt.items.add(e.dataTransfer.files[0]);
+        input.files = dt.files;
+        handleFile(input);
+    }
+});
+</script>
+{% endblock %}
